@@ -1,0 +1,15 @@
+{
+  "models": {
+    "my_model": {
+      "key": "my_model",
+      "name": "My-VLM",
+      "exp_subdir": "My-VLM",
+      "infer_script": "E:/path/to/my_infer.py",
+      "model_path": "E:/path/to/my_model",
+      "extra_args": [
+        "--dtype",
+        "bf16"
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "datasets": {
+    "my_dataset": {
+      "name": "my_dataset",
+      "output_dirname": "my_dataset",
+      "base_jsonl": "E:/path/to/my_dataset_openqa.jsonl",
+      "dataset_config": "E:/path/to/my_dataset_config.json",
+      "extra_args": []
+    }
+  }
+}

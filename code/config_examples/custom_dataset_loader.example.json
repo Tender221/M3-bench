@@ -1,0 +1,13 @@
+{
+  "type": "jsonl",
+  "dataset_name": "my_dataset",
+  "jsonl_path": "E:/path/to/my_dataset_openqa.jsonl",
+  "id_field": "id",
+  "question_field": "question",
+  "answer_field": "gt_text",
+  "image_field": "image_path",
+  "meta_fields": [
+    "source",
+    "category"
+  ]
+}
