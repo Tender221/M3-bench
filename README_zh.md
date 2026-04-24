@@ -473,10 +473,6 @@ python code/infer/eval/summary_figure.py \
 4. 为不同模型家族补一份环境安装说明。
 5. 准备一个小型 demo 数据或 smoke test 样例。
 
-另外可以参考：
-
-- `RELEASE_CHECKLIST.md`
-- `LICENSE_OPTIONS.md`
 
 ## 引用
 
