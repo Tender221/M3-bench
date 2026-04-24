@@ -472,10 +472,6 @@ Before publishing, it is recommended to:
 4. Add environment setup instructions for each supported model family.
 5. Add a small demo dataset or a toy example for smoke testing.
 
-See also:
-
-- `RELEASE_CHECKLIST.md`
-- `LICENSE_OPTIONS.md`
 
 ## Citation
 
