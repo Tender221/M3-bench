@@ -1,0 +1,5 @@
+"model","cohort","qualified_roots","task_affected_roots","semantic_affected_roots","format_only_affected_roots","task_failure_events","semantic_failure_events","format_only_failure_events","semantic_diagonal_found","semantic_diagonal_missed","semantic_corner_found","semantic_corner_missed"
+"blip2","primary_task_strict41","145","89","85","4","608","538","70","60","25","48","37"
+"llava","primary_task_strict41","550","117","117","0","660","651","9","97","20","75","42"
+"qwen25","primary_task_strict41","540","155","152","3","1111","1011","100","119","33","89","63"
+"qwen3vl","primary_task_strict41","658","170","170","0","1098","1080","18","133","37","107","63"

@@ -1,0 +1,24 @@
+{
+  "protocol_source_sha256": "c4a0419e7c40b6f28bd4bdd0bd65127c6d7f6de5425e861eac6f9f1c5361f3d9",
+  "router_source_sha256": "78ab0ad794fea3a607a58871eb0e5bda10d6d15c8f22c35424d5dadc975d7cdc",
+  "extraction": "Four function definitions used by executed parallel_scorer.frozen(), copied verbatim; historical module prompt and CLI excluded",
+  "functions": [
+    {
+      "name": "normalize_safe",
+      "sha256": "afee36d62112afe67ceb630a22e392628fef603a3267efa2e717489f98c90c60"
+    },
+    {
+      "name": "safe_exact",
+      "sha256": "0dbad93a727133e996ce4711e9599f9631b92c2a2d67b4041c8cfc1a11a4dfa7"
+    },
+    {
+      "name": "initial_decision",
+      "sha256": "a6039e7c0ac8ae47941e6f1dc1566eed6613c71f1829f267e9a082fbe2ac1295"
+    },
+    {
+      "name": "judge_key",
+      "sha256": "5c70efa9d51467fe3f1663f791437c41b4281009a3d6443bc015c6a5a882305d"
+    }
+  ],
+  "python_reexecuted_for_packaging": false
+}

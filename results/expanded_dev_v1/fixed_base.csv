@@ -1,0 +1,7 @@
+"axis","eligibility_axis","target","denominator","eligible_images","base_gaps","gap_images","base_correct","repair","repair_images","new_error","new_error_images","target_correct","base_accuracy","target_accuracy"
+"task_pass","task_pass","MatchedProtect@50","7552","145","119","45","7433","71","37","389","34","7115","0.9842425847457628","0.942134533898305"
+"task_pass","task_pass","MatchedConstrained@50","7552","145","119","45","7433","70","36","385","32","7118","0.9842425847457628","0.942531779661017"
+"semantic_correct","task_pass","MatchedProtect@50","7552","145","98","39","7454","58","33","362","35","7150","0.9870233050847458","0.9467690677966102"
+"semantic_correct","task_pass","MatchedConstrained@50","7552","145","98","39","7454","57","32","356","33","7155","0.9870233050847458","0.9474311440677966"
+"semantic_correct","semantic_correct","MatchedProtect@50","8018","150","121","45","7897","74","38","473","42","7498","0.9849089548515839","0.9351459216762285"
+"semantic_correct","semantic_correct","MatchedConstrained@50","8018","150","121","45","7897","74","37","466","41","7505","0.9849089548515839","0.9360189573459715"

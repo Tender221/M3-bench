@@ -1,0 +1,5 @@
+"model","source_count","valid_sources","source_equal_coverage","pooled_qualified","pooled_affected","interval"
+"blip2","3","3","0.7023809523809522","145","89","not_computed"
+"llava","3","3","0.22854792573102434","550","117","not_computed"
+"qwen25","3","3","0.31527487167668383","540","155","not_computed"
+"qwen3vl","3","3","0.28130552414795673","658","170","not_computed"

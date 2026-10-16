@@ -1,479 +1,87 @@
-# 多模态鲁棒性评测工具箱
+# M³-Test：联合扰动覆盖与已有成功保持
 
-这是一个面向多模态问答模型的鲁棒性评测工具箱，主打图像扰动与文本扰动的组合评测。当前仓库支持：
+[English](README.md) · [当前结果](docs/BINARY_RESULTS.md) · [判分协议](docs/SCORING.md) · [复现说明](docs/REPRODUCE.md)
 
-- 在扰动强度网格上生成评测数据
-- 对 clean / 仅图像扰动 / 仅文本扰动 / 混合扰动输入做推理
-- 计算 OpenQA 常用指标，如 EM、F1
-- 基于 bootstrap 的交互效应分析
-- 生成热力图与单页汇总图
-- 支持用户自定义模型接入
-- 支持用户自定义数据集接入
+M³-Test在同一图像—问题上配对评估clean、仅图像、仅文本和联合扰动，回答三个问题：**单模态成功后还有什么组合失败？简化测试漏掉什么？模型变化后哪些旧成功仍被保留？**
 
-本项目以 Linux 为主支持平台。Windows 不再作为官方重点适配目标，个别脚本可能仍可运行，但如果你希望获得稳定、可复现的使用体验，建议直接在 Linux 环境下使用。
+**2026-10-16当前口径：`task_pass = semantic_correct AND format_compliant`。** 当前图表使用冻结二元判分；语义单轴作为独立敏感性分析，资格分母另算。原EM/F1工具代码保留，原中英文说明逐字保存在[历史说明](docs/legacy/)。旧推理命令本身不等于当前二元论文结果的复现入口。
 
-## 许可证
+## 数据与评测范围
 
-本项目采用 Apache License 2.0 开源，详见根目录下的 `LICENSE` 文件。
+- GQA、OK-VQA、VQAv2各500题，共1,500题、1,065张原图；同图的题和条件相关。
+- 5类图像算子×5类文本算子，每轴4个非零强度。
+- 每模型每题：clean1+图像单模态20+文本单模态20+联合400=441个条件条目。不同条目不保证实际像素或字符串不同。
+- 四个原始模型：BLIP-2 OPT-2.7B、LLaVA-1.5-7B、Qwen2.5-VL-7B、Qwen3-VL-8B，共2,646,000条已有回答，统一按同一二元协议重判。
+- 本仓库包含完整条件级二元标签的紧凑NPZ、原图分组/来源ID、源表与当前结果图。原始图片、权重和完整预测文本归档未随仓库打包，详见[发布范围](docs/RELEASED_DATA.md)。
 
-## 仓库结构
+## 当前主结果
+
+主准确率要求语义正确且格式合规。strict41要求当前模型的clean及全部40个单模态条件都通过，四模型的合格人群不同。
+
+| 模型 | Clean | Single | Joint | strict41题数 | 其中联合失败题 |
+|---|---:|---:|---:|---:|---:|
+| BLIP-2 |41.33%|40.00%|38.58%|145|89（61.38%）|
+| LLaVA |69.13%|67.90%|66.63%|550|117（21.27%）|
+| Qwen2.5-VL |71.47%|69.38%|67.28%|540|155（28.70%）|
+| Qwen3-VL |75.60%|74.28%|72.96%|658|170（25.84%）|
+
+每模型clean/single/joint准确率分母分别1,500/60,000/600,000；这些条件数不当作独立图片数。
+
+![准确率与受影响问题覆盖](results/binary_v1/figures/01_accuracy_and_suite_coverage.png)
+
+1. **事件稀疏，但受影响的问题不少。** Qwen2.5和Qwen3在各自strict41上的失败事件密度为0.514%和0.417%，受影响问题比例却为28.70%和25.84%。
+2. **最高强度和对角线不能代替完整二维网格。** 两个Qwen模型的25个最高角点都漏掉63个受影响问题；100个对角条件仍分别漏34和37题。这是不同成本切片，不能当成等预算比较。
+3. **均分更高仍会丢失旧成功。** Qwen2.5原本441条件全通过的385题，换成Qwen3后307题仍全通过。78题按首次失败阶段分为clean10、single32、joint36。
+
+![缩减切片漏检位置](results/binary_v1/figures/05_slice_missed_locations.png)
+
+## 去掉格式要求，主要发现是否还在？
+
+在相同既有标签上只用semantic_correct，重新确定各模型自己的clean+全部40 singles资格：
+
+| 模型 | 语义合格题数 | 联合失败题数 | 对角线漏题 | 最高角点漏题 |
+|---|---:|---:|---:|---:|
+| Qwen2.5-VL |571|170（29.77%）|39|73|
+| Qwen3-VL |659|170（25.80%）|37|63|
+
+同时固定原主指标人群不变：原155个Qwen2.5联合失败题中152题仍有语义错误（152/540），Qwen3的170题全部保留（170/658）。原385个旧全套成功题的语义保持仍为307，78个回归没有因取消格式要求消失。两种人群分别报告，不能交叉使用分母。[语义单轴源表](results/semantic_v1/)
+
+## 无需GPU的复算
+
+安装PowerShell 7.2+，在仓库根目录运行：
+
+```powershell
+pwsh -NoProfile -File code/binary/analyze_binary_masks.ps1 -Output ./output/binary-reanalysis
+pwsh -NoProfile -File code/binary/test_semantic_sensitivity.ps1
+```
+
+该入口通过.NET直接读取已发布NPZ，核验物理哈希、原图分组和标签合取不变量，复算Task/Semantic资格、切片漏检、对应单模态缺口和全部有向模型保持比较。不需要Python、模型、裁判或服务器；输出目录须是新的。图表也可从源CSV用保留的Python/matplotlib脚本重画。[依赖与运行说明](docs/REPRODUCE.md)
+
+## 重要定义
+
+- **strict41**：clean和所有40 singles都成功，用于问题覆盖与失败事件密度。
+- **逐格资格**：某个joint格的两项对应single都成功；不偷偷增加clean或其他single要求。
+- **成功保持**：原模型的资格/成功人群固定不动，同时报告修复R和新增错误N。
+- **预算**：joint查询成本不含先前41项资格测试；均匀曲线是有限完整网格上的精确期望，不是已验证泛化的学习策略。
+
+另外已完成200原图、63,000新回答的开发诊断。它说明训练后整体提分仍可能损伤原有联合成功，尚不支持新增约束优于普通保护，详见[结果汇总](docs/BINARY_RESULTS.md)。没有继续启动新训练。
+
+## 目录
 
 ```text
-root/
-├─ code/
-│  ├─ run_matrix.py
-│  ├─ batch_run_matrix.py
-│  ├─ config_examples/
-│  ├─ infer/
-│  │  ├─ infer_openqa_qwen25.py
-│  │  ├─ infer_openqa_qwen3.py
-│  │  ├─ infer_openqa_llava.py
-│  │  ├─ infer_openqa_blip2.py
-│  │  ├─ data/
-│  │  └─ eval/
-│  └─ route/
-└─ dataset/
-   ├─ GQA/
-   └─ OK-VQA/
+code/binary/                    当前CPU复算与冻结判分规则
+code/run_matrix.py              保留的历史推理/EM/F1驱动
+code/infer/, code/route/         保留的模型适配与扰动工具
+results/binary_v1/              完整紧凑标签、来源/原图ID、12份CSV、当前图
+results/semantic_v1/            语义单轴与固定原人群敏感性
+results/expanded_dev_v1/        已完成200图开发评测汇总
+docs/SCORING.md                 判分、环境、资格与范围
+docs/REPRODUCE.md               当前入口和旧代码的区别
+docs/legacy/                   原始中英文README逐字存档
 ```
 
-## 整体流程
+## 适用范围与许可
 
-默认评测流程如下：
+结果针对记录下来的单次扰动实现和已知基准。强度顺序不被假设为准确率单调。Judge看原问题、完整参考答案和预测，**不看损坏图片**。语义单轴沿用同一Judge标签，不是新的人工审核，也不证明受损图片仍可回答。按本轮决定没有追加人工抽审。
 
-1. 准备基础 OpenQA 格式 JSONL 数据。
-2. 在图像扰动和文本扰动的 severity 网格上生成扰动样本。
-3. 在每个网格单元上运行模型推理。
-4. 计算评测指标。
-5. 进行 bootstrap 交互效应分析。
-6. 输出汇总 CSV、文本报告、热力图和总览图。
-
-## 数据格式
-
-输入数据默认采用 OpenQA 风格的 JSONL，每一行至少包含：
-
-```json
-{
-  "id": "sample_001",
-  "question": "图中是什么？",
-  "gt_text": ["cat"],
-  "image_path": "/absolute/path/to/image.jpg"
-}
-```
-
-说明：
-
-- `gt_text` 可以是字符串，也可以是字符串列表。
-- `image_path` 需要是本地有效路径。
-- 其余附加字段会被保存在 `meta` 中。
-
-这个开源整理目录默认只包含数据预处理脚本，不默认附带处理好的 benchmark JSONL 文件。可参考 `dataset/README.md` 自行准备对应数据。
-
-## 环境建议
-
-推荐环境：
-
-- Linux
-- Python 3.10+
-- 如果运行大模型，建议使用带 CUDA 的 PyTorch 环境
-
-常见依赖包括：
-
-- `torch`
-- `transformers`
-- `tqdm`
-- `Pillow`
-- `numpy`
-- `matplotlib`
-
-不同模型家族还可能需要额外依赖，比如 Qwen-VL、LLaVA 等请根据各自模型要求安装。
-
-## 快速开始
-
-### 1. 运行单个模型 + 单个扰动对
-
-```bash
-python code/run_matrix.py \
-  --exp_root ./output/okvqa/Qwen2.5-VL-7B/jpeg_ocr_grid \
-  --shared_data_root ./output/okvqa/shared/jpeg_ocr_grid \
-  --shared_cache_root ./output/okvqa/shared/_global_cache \
-  --dataset okvqa \
-  --base_jsonl ./dataset/OK-VQA/okvqa_val_openqa.jsonl \
-  --img_perturb jpeg \
-  --txt_perturb ocr \
-  --severities 0,1,2,3,4,5 \
-  --model_name Qwen2.5-VL-7B \
-  --infer_script ./code/infer/infer_openqa_qwen25.py \
-  --model_path /path/to/Qwen2.5-VL-7B \
-  --run_bootstrap \
-  --run_excess
-```
-
-### 2. 批量运行多个模型和数据集
-
-```bash
-python code/batch_run_matrix.py \
-  --only_models qwen25,qwen3 \
-  --only_datasets okvqa,gqa \
-  --only_pairs jpeg_ocr,gaussian_blur_typo
-```
-
-### 3. 先 dry run 检查命令
-
-```bash
-python code/batch_run_matrix.py --dry_run
-```
-
-### 4. 最小 smoke test
-
-建议在正式大规模运行前，先用一个很小的子集做冒烟测试：
-
-```bash
-python code/run_matrix.py \
-  --exp_root ./output/smoke/Qwen2.5-VL-7B/jpeg_ocr_grid \
-  --shared_data_root ./output/smoke/shared/jpeg_ocr_grid \
-  --shared_cache_root ./output/smoke/shared/_global_cache \
-  --dataset okvqa \
-  --base_jsonl ./dataset/OK-VQA/okvqa_val_openqa.jsonl \
-  --img_perturb jpeg \
-  --txt_perturb ocr \
-  --severities 0,1 \
-  --limit 8 \
-  --model_name Qwen2.5-VL-7B \
-  --infer_script ./code/infer/infer_openqa_qwen25.py \
-  --model_path /path/to/Qwen2.5-VL-7B
-```
-
-## 主要入口脚本
-
-### `code/run_matrix.py`
-
-这是单个实验的主调度脚本，负责：
-
-- 生成或复用扰动数据
-- 调用模型推理
-- 调用评测脚本
-- 输出汇总结果
-- 可选执行 bootstrap / excess / 热力图 / 总览图
-
-常用参数：
-
-- `--prepare_data_only`
-- `--reuse_data_only`
-- `--shared_data_root`：某一个扰动对对应的共享输入目录，里面放按 cell 划分的 JSONL 入口文件。
-- `--shared_cache_root`：可选的全局缓存根目录。不同扰动对如果共用这个路径，就能共享图像/文本扰动缓存。
-- `--prefix <run_name>`：可选的实验名前缀，会用于预测文件名和 bootstrap_ready 里的文件链接；如果不传，默认使用 `<img_perturb>_<txt_perturb>`。
-- `--run_bootstrap`
-- `--run_excess`
-- `--run_new_metrics`
-- `--run_heatmap`
-- `--run_summary_figure`
-
-网格组合规则：
-
-- `--severities 0,1,2,3` 会自动展开成完整的图像-文本扰动网格。
-- `cell(i,j)` 表示图像扰动强度为 `i`，文本扰动强度为 `j`。
-- `(0,0)` 对应 `clean`。
-- `(i,0)` 且 `i>0` 对应 `img_only`。
-- `(0,j)` 且 `j>0` 对应 `txt_only`。
-- `(i,j)` 且 `i>0` 且 `j>0` 对应 `mixed`。
-
-结果命名规则：
-
-- 共享扰动数据 JSONL 会根据扰动对和强度自动命名，例如 `mixed_jpeg_is2__ocr_ts3.jsonl`。
-- 预测结果文件会自动命名为 `<prefix>__<mode>.jsonl`，例如 `smoke_s0123_100__mixed.jsonl`。
-- 结果目录里的 `cells/2_3/` 表示图像强度 `2`、文本强度 `3`。
-- `manifest.json` 会记录这次运行的全局配置，例如数据集、扰动对、强度列表、脚本路径和 prefix。
-- `reports/metrics_summary.csv` 会为每个已评测的 cell 自动写一行，包含 `cell`、`mode`、预测路径和指标路径。
-
-推荐的目录理解方式：
-
-- `shared_data_root`：某一个扰动对的共享输入目录，主要给推理脚本消费。
-- `shared_cache_root`：全局缓存目录，主要给跨不同扰动对的图像/文本扰动复用。
-- `exp_root`：某一个模型对应的实验结果目录，里面放预测、指标、bootstrap、热力图和总览图。
-
-这三个路径在实际使用里的分工可以这样理解：
-
-- `shared_data_root` 决定当前这个扰动对把按 cell 划分的 JSONL 入口文件写到哪里，例如 `clean`、`img_only`、`txt_only`、`mixed`。
-- `shared_cache_root` 决定底层可复用缓存写到哪里，包括已经生成过的扰动图像、已经生成过的扰动文本，以及标准化后的中间 JSONL。
-- `exp_root` 决定某一个模型自己的预测结果和评测结果写到哪里。通常换模型时需要换 `exp_root`，但不一定需要换 `shared_data_root`。
-- `--prefix` 只影响结果文件里的命名，本身并不决定缓存是否会复用。
-
-共享数据与缓存目录结构：
-
-- `clean/data/clean_s0_<tag>.jsonl`：clean 条件的 JSONL 入口文件。
-- `cells/<i>_<j>/data/img_only_<tag>.jsonl`：当前 cell 的 image-only JSONL。
-- `cells/<i>_<j>/data/txt_only_<tag>.jsonl`：当前 cell 的 text-only JSONL。
-- `cells/<i>_<j>/data/mixed_<tag>.jsonl`：当前 cell 的 mixed JSONL。
-- `<shared_cache_root>/images/<img_perturb>/is<severity>/seed<seed>/...`：可复用的图像扰动缓存。
-- `<shared_cache_root>/text/<txt_perturb>/ts<severity>/seed<seed>_n<samples>/questions.jsonl`：可复用的文本扰动缓存。
-- `<shared_cache_root>/jsonl/...`：可复用的 clean / img_only / txt_only 标准 JSONL 缓存。
-
-一个典型目录结构大致如下：
-
-```text
-output/
-  okvqa/
-    shared/
-      jpeg_ocr_grid/
-        manifest.json
-        clean/
-          data/
-            clean_s0_okvqa_n50.jsonl
-        cells/
-          1_0/
-            data/
-              img_only_jpeg_is1__ocr_ts0.jsonl
-          0_2/
-            data/
-              txt_only_jpeg_is0__ocr_ts2.jsonl
-          2_3/
-            data/
-              mixed_jpeg_is2__ocr_ts3.jsonl
-      _global_cache/
-        images/
-          jpeg/
-            is1/
-        text/
-          ocr/
-            ts2/
-              seed0_n50/
-                questions.jsonl
-        jsonl/
-          okvqa/
-            ...
-    Qwen2.5-VL-7B/
-      jpeg_ocr_grid/
-        manifest.json
-        clean/
-          pred/
-            jpeg_ocr__clean.jsonl
-          metrics/
-            vqa_score.json
-        cells/
-          2_3/
-            pred/
-              jpeg_ocr__mixed.jsonl
-            metrics/
-              vqa_score.json
-        reports/
-          metrics_summary.csv
-          bootstrap_ready/
-          excess_f1.txt
-          heatmap_mixed_f1.png
-```
-
-结果目录结构：
-
-- `clean/pred/` 和 `cells/<i>_<j>/pred/`：当前模型输出的预测 JSONL。
-- `clean/metrics/` 和 `cells/<i>_<j>/metrics/`：每个 cell 对应的评测结果。
-- `reports/metrics_summary.csv`：每个已评测 cell 一行，是最适合快速确认“到底跑了哪些组合”的汇总文件。
-- `reports/bootstrap_ready/`：为了后续 bootstrap 准备的平铺文件目录。
-- `reports/excess_f1.txt`：开启 `--run_excess` 时生成的 excess 分析结果。
-- `reports/heatmap_*.png` 和 summary figure：只有在开启 `--run_heatmap` 或 `--run_summary_figure` 时才会生成。
-
-复用规则：
-
-- 同一个 `shared_data_root`，换模型：可以用 `--reuse_data_only` 直接复用已经生成好的输入数据。
-- 同一个 `shared_cache_root`，如果图像扰动相同、只换文本扰动：图像缓存会复用。
-- 同一个 `shared_cache_root`，如果文本扰动相同、只换图像扰动：文本缓存会复用。
-- 如果不传 `--shared_cache_root`，缓存会默认落到 `<shared_data_root>/_cache`，此时复用只会局限在这个 pair 对应的目录内部。
-
-几个容易误解但很重要的点：
-
-- 不同扰动对之间不会因为名字“看起来一样”就自动共享缓存。只有它们显式指向同一个 `--shared_cache_root` 时，跨 pair 复用才会发生。
-- 不同模型之间复用已经准备好的 cell JSONL，依赖的是同一个 `--shared_data_root`，以及运行时使用 `--reuse_data_only`。
-- 如果想最好理解整个机制，可以把 `shared_data_root` 当成“pair 级别复用输入”，把 `shared_cache_root` 当成“全局底层构件缓存”。
-
-典型示例：
-
-复用已有共享输入，只换模型：
-
-```bash
-python code/run_matrix.py \
-  --exp_root ./output/okvqa/BLIP2-opt-2.7B/jpeg_ocr_grid \
-  --shared_data_root ./output/okvqa/shared/jpeg_ocr_grid \
-  --shared_cache_root ./output/okvqa/shared/_global_cache \
-  --dataset okvqa \
-  --img_perturb jpeg \
-  --txt_perturb ocr \
-  --severities 0,1,2,3 \
-  --model_name BLIP2-opt-2.7B \
-  --infer_script ./code/infer/infer_openqa_blip2.py \
-  --model_path /path/to/BLIP2-OPT-2.7B \
-  --reuse_data_only \
-  --run_bootstrap \
-  --run_excess
-```
-
-换一个新的扰动对，但仍然复用同一个全局缓存：
-
-```bash
-python code/run_matrix.py \
-  --exp_root ./output/okvqa/Qwen2.5-VL-7B/jpeg_typo_grid \
-  --shared_data_root ./output/okvqa/shared/jpeg_typo_grid \
-  --shared_cache_root ./output/okvqa/shared/_global_cache \
-  --dataset okvqa \
-  --base_jsonl ./dataset/OK-VQA/okvqa_val_openqa.jsonl \
-  --img_perturb jpeg \
-  --txt_perturb typo \
-  --severities 0,1,2,3 \
-  --model_name Qwen2.5-VL-7B \
-  --infer_script ./code/infer/infer_openqa_qwen25.py \
-  --model_path /path/to/Qwen2.5-VL-7B
-```
-
-### `code/batch_run_matrix.py`
-
-这是更高层的批处理脚本，负责：
-
-- 每个 dataset + pair 只生成一次共享扰动数据
-- 多个模型复用同一份共享数据
-- 支持自定义模型注册表和数据集注册表
-
-批量运行时的推荐缓存约定：
-
-- 建议每个数据集配一个统一的全局缓存根，例如 `./output/okvqa/shared/_global_cache`。
-- 如果你希望不同扰动对之间也复用缓存，请在所有批量任务里传同一个 `--shared_cache_root`。
-
-例如：
-
-```bash
-python code/batch_run_matrix.py \
-  --only_models qwen25,blip2 \
-  --only_datasets okvqa \
-  --only_pairs jpeg_ocr,jpeg_typo,gaussian_blur_ocr \
-  --shared_cache_root ./output/okvqa/shared/_global_cache
-```
-
-上面这个命令下：
-
-- `jpeg_ocr` 和 `jpeg_typo` 会复用同一份 JPEG 图像扰动缓存。
-- `jpeg_ocr` 和 `gaussian_blur_ocr` 会复用同一份 OCR 文本扰动缓存。
-- 但每个 pair 仍然保留自己独立的 `shared_data_root`，所以每组 cell JSONL 入口文件仍然是分开、可检查的。
-
-## 自定义数据集接入
-
-你可以通过两种方式接入自己的数据集。
-
-### 方式 A：直接使用 JSONL
-
-如果你的数据已经是 OpenQA JSONL 格式，那么直接传：
-
-- `--dataset your_dataset_name`
-- `--jsonl_path /path/to/data.jsonl`
-
-### 方式 B：使用 dataset config
-
-如果你的字段名不同，或者你想通过配置文件定义加载方式，可以参考：
-
-- `code/config_examples/custom_dataset_loader.example.json`
-
-调用示例：
-
-```bash
-python code/infer/infer_openqa_qwen25.py \
-  --dataset my_dataset \
-  --dataset_config ./code/config_examples/custom_dataset_loader.example.json \
-  --model_path /path/to/model \
-  --output_path ./tmp/preds.jsonl
-```
-
-如果你想在批处理脚本中注册自定义数据集，可以参考：
-
-- `code/config_examples/custom_datasets.example.json`
-
-然后运行：
-
-```bash
-python code/batch_run_matrix.py --datasets_config ./my_datasets.json
-```
-
-## 自定义模型接入
-
-如果你要接自己的模型，需要准备一个推理脚本，至少支持以下参数：
-
-- `--dataset`
-- `--jsonl_path`
-- `--dataset_config`
-- `--output_path`
-- `--model_path`
-
-然后通过模型注册表接入，参考：
-
-- `code/config_examples/custom_models.example.json`
-
-运行示例：
-
-```bash
-python code/batch_run_matrix.py --models_config ./my_models.json
-```
-
-## 输出结果
-
-运行完成后，常见输出包括：
-
-- `reports/metrics_summary.csv`
-- `reports/bootstrap_<metric>.txt`
-- `reports/excess_<metric>.txt`
-- `reports/new_metrics/summary_<metric>.txt`
-- `reports/new_metrics/summary_<metric>.json`
-- `reports/new_metrics/per_cell_<metric>.csv`
-- `reports/figures/*heatmap.png`
-- `reports/figures/summary_<metric>.png`
-
-现在脚本在运行结束时也会明确打印这些结果文件路径。
-
-## 可视化
-
-仓库目前包含两类结果可视化：
-
-- 从 bootstrap 统计结果生成热力图
-- 生成一张总览图，把指标网格与交互分析结果放在同一张图里
-
-示例：
-
-```bash
-python code/infer/eval/summary_figure.py \
-  --summary_csv ./output/exp/reports/metrics_summary.csv \
-  --bootstrap_txt ./output/exp/reports/bootstrap_f1.txt \
-  --summary_json ./output/exp/reports/new_metrics/summary_f1.json \
-  --out_png ./output/exp/reports/figures/summary_f1.png
-```
-
-## 当前内置模型脚本
-
-- Qwen2.5-VL
-- Qwen3-VL
-- LLaVA-1.5
-- BLIP2
-
-这些脚本的定位更偏“适配示例”和“默认入口”，并不代表所有模型家族、所有依赖版本都已经在所有环境下充分验证。
-
-## 当前内置数据集入口
-
-- OK-VQA
-- GQA
-- `load_dataset.py` 中仍保留了 RealWorldQA 的公共加载入口
-
-## 当前限制
-
-- Linux 是唯一官方推荐平台。
-- 不同 VLM 模型对依赖版本的要求可能不同。
-- 仓库中仍有少量较早期的辅助脚本，不属于当前整理后的主流程。
-- 发布前仍建议你在自己的 Linux 环境里完整跑通一次主流程。
-
-## 建议的开源前检查项
-
-建议在正式发布前做以下事情：
-
-1. 在干净的 Linux 环境中完整验证主流程。
-2. 清理或归档那些不准备作为正式接口公开的旧辅助脚本。
-3. 确认 Apache-2.0 是你最终想采用的许可证。
-4. 为不同模型家族补一份环境安装说明。
-5. 准备一个小型 demo 数据或 smoke test 样例。
-
-
-## 引用
-
-如果你在论文或项目中使用了这个工具箱，请在对应论文或项目页面发布后补充引用信息。
+工作定位是评测协议与系统分析，不宣称新训练算法、因果融合机制、封存test或自然场景泛化。原始数据集许可和访问条件持续适用。代码沿用原[Apache-2.0许可证](LICENSE)。相关论文正在准备中，没有声称录用或已有DOI；现阶段引用仓库地址和使用的准确commit即可。

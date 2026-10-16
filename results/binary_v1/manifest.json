@@ -1,0 +1,83 @@
+{
+  "version": "binary_v1_20261016",
+  "score": "semantic_correct AND format_compliant",
+  "rows": 2646000,
+  "roots": 1500,
+  "original_images": 1065,
+  "models": 4,
+  "conditions": 441,
+  "source_npz_sha256": "3d7617bdb468bc9baa7e4491f9733f2dfd18b697e41c7828dc480c87cf566c17",
+  "human_audit": false,
+  "files": [
+    {
+      "path": "accuracy_axes.csv",
+      "bytes": 4097,
+      "sha256": "ebdadca9a9097e4015dc2894f754ce08575f84e933b312522fc138c56b655c7b"
+    },
+    {
+      "path": "binary_masks.npz",
+      "bytes": 169340,
+      "sha256": "3d7617bdb468bc9baa7e4491f9733f2dfd18b697e41c7828dc480c87cf566c17"
+    },
+    {
+      "path": "budget_curves.csv",
+      "bytes": 291150,
+      "sha256": "bb89ed556f8e1e91bd754e727a79658e568af2159377b4df716dfa0257c5e2bf"
+    },
+    {
+      "path": "cell_metrics.csv",
+      "bytes": 1037442,
+      "sha256": "b53b4c393fcb31ea61018389f8cf030e3d0b171450849aec30ce3f69a74ec374"
+    },
+    {
+      "path": "missed_locations.csv",
+      "bytes": 3789,
+      "sha256": "d85411e1eb34ff4f2783f181f0609e72e18027f6bbec7a6889d2d06e913c2f73"
+    },
+    {
+      "path": "model_replacement.csv",
+      "bytes": 2591,
+      "sha256": "4f9dedf6a0955098a240e8ca97b8af35dd6fa7df509190430796db0a7571c68d"
+    },
+    {
+      "path": "model_summary.csv",
+      "bytes": 1286,
+      "sha256": "411eefbaa64b61f4363901e830105a207e1e129eb91beda369943ea326f60d97"
+    },
+    {
+      "path": "pair_metrics.csv",
+      "bytes": 38150,
+      "sha256": "9203a75b2cb54762d396991a4e992dec97b04376b951ebe6c22c2c30b79e869e"
+    },
+    {
+      "path": "recurrence.csv",
+      "bytes": 396,
+      "sha256": "c7b5d3fe5174793b432d92a5d04ef619d2a40a9a90dd7e6d3cb55f939ff7759f"
+    },
+    {
+      "path": "root_metrics.csv",
+      "bytes": 591572,
+      "sha256": "fcbe104ec6e69e76ebac3fc2a66e1568717e440dfeb241421cdb0951f9d30a76"
+    },
+    {
+      "path": "roots.csv",
+      "bytes": 137259,
+      "sha256": "79544771505c3bb2219599d1ad70706794779d81e658b38dbe868dcb11208ff6"
+    },
+    {
+      "path": "slice_coverage.csv",
+      "bytes": 695,
+      "sha256": "54b43098424bc44d1ff6c01c0470c4a7a0dce3fb56a6754d358bab350e330da0"
+    },
+    {
+      "path": "source_equal_coverage.csv",
+      "bytes": 377,
+      "sha256": "19286351252c288838d7dab37e418ce5382b33d8b26469264aa107717a05aec2"
+    },
+    {
+      "path": "source_metrics.csv",
+      "bytes": 784,
+      "sha256": "b0f487885d029cb80553422da8e97a4d4fb56f811f6163d384e332cfd9e280c8"
+    }
+  ]
+}

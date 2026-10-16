@@ -1,0 +1,13 @@
+﻿model,slice,conditions,qualified_roots,full_affected_roots,found_roots,missed_roots,discovery_fraction
+blip2,full,400,145,89,89,0,1.0
+blip2,diagonal,100,145,89,65,24,0.7303370786516854
+blip2,maximum_corner,25,145,89,48,41,0.5393258426966292
+llava,full,400,550,117,117,0,1.0
+llava,diagonal,100,550,117,98,19,0.8376068376068376
+llava,maximum_corner,25,550,117,75,42,0.6410256410256411
+qwen25,full,400,540,155,155,0,1.0
+qwen25,diagonal,100,540,155,121,34,0.7806451612903226
+qwen25,maximum_corner,25,540,155,92,63,0.5935483870967742
+qwen3vl,full,400,658,170,170,0,1.0
+qwen3vl,diagonal,100,658,170,133,37,0.7823529411764706
+qwen3vl,maximum_corner,25,658,170,107,63,0.6294117647058823
