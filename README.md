@@ -39,6 +39,23 @@ Three observations motivate the protocol:
 
 ![Locations of questions missed by reduced suites](results/binary_v1/figures/05_slice_missed_locations.png)
 
+## Paired joint reliability profile
+
+The new [profile analysis](docs/JOINT_METRICS.md) retains both corresponding-single qualification and each question's condition vector. On a fixed four-model intersection:
+
+| Model | JSR | JSS | TGR5 |
+|---|---:|---:|---:|
+| BLIP-2 |97.562%|41/88 (46.59%)|8.538%|
+| LLaVA |99.764%|83/88 (94.32%)|1.172%|
+| Qwen2.5-VL |99.325%|78/88 (88.64%)|2.580%|
+| Qwen3-VL |99.736%|83/88 (94.32%)|1.170%|
+
+JSR is joint accuracy on **144,754 shared eligible records**, ECR 24.13% of 600,000 records/model. JSS is complete 400-joint survival on a **different shared 88-question/77-image strict41 cohort**. TGR5 averages the worst 20 of 400 supported conditional cell failure rates. Own-qualified results, source/semantic sensitivity, pointwise image-paired intervals and all candidate comparisons are in [results/joint_metrics_v1](results/joint_metrics_v1/). These quantities form a profile, not a weighted universal score.
+
+In a disclosed search of all 1,200 within-model pair comparisons, two BLIP-2 family pairs each answer1,399/1,408 records correctly (99.361%) but preserve complete 16-condition success on 82/88 versus 85/88 questions. Mean accuracy discards that question alignment. JSR is itself conditional accuracy and JSS complements affected-question coverage; TGR/H summarize a conditional map. The added information comes from qualification and retained identities, not new names for redundant formulas.
+
+![Equal mean accuracy with different pair-suite survival](results/joint_metrics_v1/figures/matched_pair_survival.png)
+
 ## Semantic-only sensitivity
 
 Removing the format requirement preserves these findings. Recomputing clean-plus-single qualification using semantic agreement alone gives:
@@ -52,7 +69,16 @@ On the **unchanged primary task-qualified** populations, semantic joint failures
 
 ## Reproduce the core counts without a GPU
 
-Install PowerShell 7.2+ and run from the repository root:
+For all 12 source tables plus the new 18 profile tables and shared 2000-draw image bootstrap:
+
+```bash
+python -m pip install -r code/binary/requirements.txt
+python code/binary/reproduce_all.py --output output/reproduced --plots
+```
+
+`--plots` adds the new profile illustrations; omit it for NumPy-only analysis with `requirements-core.txt`. The released-label replay verifies physical inputs, requires fresh output, reconstructs the tables and checks the historical12CSV values. It does not regenerate model answers or Judge decisions. Earlier publication figures retain their separate plotting entry in [reproduction details](docs/REPRODUCE.md).
+
+The existing PowerShell7.2+ core-count entry also remains available:
 
 ```powershell
 pwsh -NoProfile -File code/binary/analyze_binary_masks.ps1 -Output ./output/binary-reanalysis
@@ -93,3 +119,4 @@ Results describe the recorded perturbation realizations and selected questions. 
 This repository reports an evaluation protocol and descriptive findings. It makes no claim of a new state-of-the-art training algorithm, universal causal fusion mechanism or sealed-test/natural-input generalization. Original dataset licenses and access conditions continue to apply. Repository code retains its existing [Apache-2.0 license](LICENSE).
 
 The associated manuscript is in preparation. No journal acceptance or paper DOI is claimed. Until a paper citation is available, cite this repository and the exact commit used.
+

@@ -1,0 +1,10 @@
+﻿view,model,pair_a,pair_b,strict_roots,denominator,correct_a,correct_b,survivors_a,survivors_b,mean_accuracy_a,mean_accuracy_b,pair_suite_survival_a,pair_suite_survival_b,absolute_accuracy_difference,absolute_survival_difference,exact_equal_correct,supported,included,selected,selection_rank
+Task,blip2,brightness__keyboard,contrast__ocr,88,1408,1399,1399,82,85,0.9936079545454546,0.9936079545454546,0.9318181818181818,0.9659090909090909,0.0,0.03409090909090909,True,True,True,True,1
+Task,blip2,brightness__ocr,contrast__ocr,88,1408,1399,1399,82,85,0.9936079545454546,0.9936079545454546,0.9318181818181818,0.9659090909090909,0.0,0.03409090909090909,True,True,True,True,2
+Task,blip2,contrast__whitespace_punc,gaussian_noise__whitespace_punc,88,1408,1404,1404,85,87,0.9971590909090909,0.9971590909090909,0.9659090909090909,0.9886363636363636,0.0,0.022727272727272728,True,True,True,True,3
+Semantic,blip2,brightness__ocr,gaussian_blur__typo,106,1696,1675,1675,98,96,0.9876179245283019,0.9876179245283019,0.9245283018867925,0.9056603773584906,0.0,0.018867924528301886,True,True,True,True,1
+Semantic,blip2,contrast__typo,gaussian_noise__whitespace_punc,106,1696,1690,1690,102,104,0.9964622641509434,0.9964622641509434,0.9622641509433962,0.9811320754716981,0.0,0.018867924528301886,True,True,True,True,2
+Semantic,llava,gaussian_blur__casing,gaussian_blur__typo,106,1696,1691,1691,103,105,0.9970518867924528,0.9970518867924528,0.9716981132075472,0.9905660377358491,0.0,0.018867924528301886,True,True,True,True,3
+Semantic-on-fixed-Task,blip2,brightness__keyboard,gaussian_blur__whitespace_punc,88,1408,1400,1400,82,84,0.9943181818181818,0.9943181818181818,0.9318181818181818,0.9545454545454546,0.0,0.022727272727272728,True,True,True,True,1
+Semantic-on-fixed-Task,blip2,brightness__ocr,contrast__ocr,88,1408,1402,1402,84,86,0.9957386363636364,0.9957386363636364,0.9545454545454546,0.9772727272727273,0.0,0.022727272727272728,True,True,True,True,2
+Semantic-on-fixed-Task,blip2,contrast__whitespace_punc,gaussian_noise__whitespace_punc,88,1408,1404,1404,85,87,0.9971590909090909,0.9971590909090909,0.9659090909090909,0.9886363636363636,0.0,0.022727272727272728,True,True,True,True,3

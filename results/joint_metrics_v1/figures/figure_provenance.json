@@ -1,0 +1,23 @@
+{
+  "input_file": "matched_selected.csv",
+  "input_sha256": "4313162793084a2b255a6de93512931b4acc94449a261e606c0d0876c49aa19a",
+  "view": "Task",
+  "selection": "frozen per-view top three, exact equality first; descriptive search",
+  "source_data": "matched_selected.csv; full search in matched_candidates.csv",
+  "suite": "16 joint conditions per family pair; not 400-condition JSS",
+  "selected_cases": 3,
+  "inference": "none; no selected-case significance intervals",
+  "status": "completed",
+  "backend": "Python/matplotlib",
+  "matplotlib": "3.10.9",
+  "width_mm": 180,
+  "height_mm": 97,
+  "png_dpi": 300,
+  "svg_text": "editable",
+  "pdf_fonttype": 42,
+  "files": {
+    "matched_pair_survival.pdf": "339aee5b788a2c62f0d9a6145ad194151669adcff924ac9b6a2dd91a9ef75d78",
+    "matched_pair_survival.png": "e213320312136d82b796634c57d51daef078c5c3c05b9bf739bbfde1d6587826",
+    "matched_pair_survival.svg": "3618ae6ab7665d18caf9bdc645ff763bc219087feb7037701e3a622a41baa759"
+  }
+}

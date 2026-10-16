@@ -35,6 +35,23 @@ M³-Test在同一图像—问题上配对评估clean、仅图像、仅文本和�
 
 ![缩减切片漏检位置](results/binary_v1/figures/05_slice_missed_locations.png)
 
+## 配对联合可靠性画像
+
+新增[指标说明](docs/JOINT_METRICS.md)和[完整源表](results/joint_metrics_v1/)，在四模型共同资格上比较：
+
+| 模型 | JSR：合格记录联合准确率 | JSS：整套联合条件通过 | TGR5：最差5%格平均失败率 |
+|---|---:|---:|---:|
+| BLIP-2 |97.562%|41/88（46.59%）|8.538%|
+| LLaVA |99.764%|83/88（94.32%）|1.172%|
+| Qwen2.5-VL |99.325%|78/88（88.64%）|2.580%|
+| Qwen3-VL |99.736%|83/88（94.32%）|1.170%|
+
+JSR使用同一144,754条逐格合格记录，占每模型600,000条联合记录的24.13%（ECR）；JSS使用另一共同strict41集合88题/77原图，要求400联合条件全部成功；TGR5平均400个有效格中最差20格。它们不是任意加权的总分，各自资格也不混用。共同资格受这四个模型名单限制；自有资格、来源分项、语义敏感性和按原图配对区间均另行导出。
+
+实际存在“均分相同，受影响题数不同”：同一88题上，BLIP-2两种配对各答对1,399/1,408次，准确率同为99.361%，但16条件整套通过分别82题和85题。案例来自预先固定规则的1,200个候选比较，全部候选公开。JSR本质是条件准确率，JSS是受影响题比例的补数；真正增加的是配对资格和跨条件题目身份，而不是指标换名。
+
+![准确率相同而整套通过率不同](results/joint_metrics_v1/figures/matched_pair_survival.png)
+
 ## 去掉格式要求，主要发现是否还在？
 
 在相同既有标签上只用semantic_correct，重新确定各模型自己的clean+全部40 singles资格：
@@ -48,7 +65,16 @@ M³-Test在同一图像—问题上配对评估clean、仅图像、仅文本和�
 
 ## 无需GPU的复算
 
-安装PowerShell 7.2+，在仓库根目录运行：
+完整Python入口从公开标签重建12张原源表、18张新指标表和2,000次共享原图bootstrap；可选生成新指标图：
+
+```bash
+python -m pip install -r code/binary/requirements.txt
+python code/binary/reproduce_all.py --output output/reproduced --plots
+```
+
+不画图可改装`requirements-core.txt`并去掉`--plots`，只需NumPy。输出目录必须是新的。这是标签到分析的重放，不重新推理或判分；旧论文图的独立重画命令仍在[复现说明](docs/REPRODUCE.md)。
+
+原PowerShell7.2+入口继续保留：
 
 ```powershell
 pwsh -NoProfile -File code/binary/analyze_binary_masks.ps1 -Output ./output/binary-reanalysis

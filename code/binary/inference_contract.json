@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "purpose": "Historical inference identity contract, not an executable full-inference claim.",
+  "models": [
+    {
+      "key": "blip2",
+      "display_name": "BLIP-2 OPT-2.7B",
+      "public_repository": "Salesforce/blip2-opt-2.7b",
+      "public_url": "https://huggingface.co/Salesforce/blip2-opt-2.7b",
+      "reproduction_revision": "59a1ef6c1e5117b3f65523d1c6066825bcf315e3",
+      "public_config_sha256": "7faf83ff4e7c25e282dcc614d018205ebcb6e832164018339b40bfe70beffa6b",
+      "run_linkage": "public reproduction pin; original run config hash was not preserved",
+      "loader": "transformers.Blip2ForConditionalGeneration and Blip2Processor",
+      "dtype": "float16",
+      "device_map": "auto",
+      "batch_size": 8
+    },
+    {
+      "key": "qwen25",
+      "display_name": "Qwen2.5-VL-7B-Instruct",
+      "public_repository": "Qwen/Qwen2.5-VL-7B-Instruct",
+      "public_url": "https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct",
+      "exact_public_revision": "cc594898137f460bfe9f0759e9844b3ce807cfb5",
+      "config_sha256": "77d9ec7321cc572e3579e2c84799c9cadaded63c49ce93b101733349fc330c43",
+      "run_linkage": "verified: server config SHA256 equals the pinned public revision",
+      "loader": "transformers.Qwen2_5_VLForConditionalGeneration and AutoProcessor",
+      "dtype": "bfloat16",
+      "device_map": "auto",
+      "batch_size": 6
+    },
+    {
+      "key": "llava",
+      "display_name": "LLaVA-1.5-7B-HF",
+      "public_repository": "llava-hf/llava-1.5-7b-hf",
+      "public_url": "https://huggingface.co/llava-hf/llava-1.5-7b-hf",
+      "exact_public_revision": "b234b804b114d9e37bb655e11cbbb5f5e971b7a9",
+      "config_sha256": "0bde54495c54bcc346064a0d314b010d1c4d3ca7f7e583b6f711949a35352c0f",
+      "run_linkage": "verified: server config SHA256 equals the pinned public revision",
+      "loader": "transformers.LlavaForConditionalGeneration and AutoProcessor",
+      "dtype": "float16",
+      "device": "cuda",
+      "batch_size": 6
+    },
+    {
+      "key": "qwen3vl",
+      "display_name": "Qwen3-VL-8B-Instruct",
+      "public_repository": "Qwen/Qwen3-VL-8B-Instruct",
+      "exact_public_revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+      "config_sha256": "5cd452860dc1e9c29dd71cc3cef7f39b338b7a40793f7a260655c2d3568f3661",
+      "run_linkage": "Retained config equality with public revision; not independent verification of every weight hash.",
+      "batch_size": 4,
+      "dtype": "bfloat16",
+      "attention": "sdpa",
+      "extra_image_resize": false
+    }
+  ],
+  "generation": {
+    "instruction": "Answer the following question with a short, direct answer. Do not include any explanation.",
+    "native_model_wrapper": true,
+    "do_sample": false,
+    "max_new_tokens": 32,
+    "qwen_top_p": 1.0,
+    "answer_vocabulary_restriction": false,
+    "run_seed": 0
+  },
+  "native_preprocessing": "Native model processor and wrapper; Qwen3-VL has no extra resize or quantization.",
+  "historical_environment": {
+    "qualification": "Recorded on 2026-08-28 by a server job that explicitly required reuse of the existing M3Bench environment without dependency upgrades; this is supporting environment evidence, not a time-stamped full-run package export.",
+    "python": "3.12.12",
+    "pytorch": "2.10.0+cu128",
+    "transformers": "5.3.0.dev0",
+    "cuda_runtime": "12.8",
+    "gpu": "NVIDIA GeForce RTX 4090 D"
+  },
+  "remaining_exact_provenance": [
+    "BLIP-2 original-run config SHA256",
+    "full-run pip/conda export and exact Transformers source commit",
+    "full-run NVIDIA driver and cuDNN versions"
+  ],
+  "source_evidence": [
+    {
+      "sha256": "f18914918ee15dbdb13d6bea5ca33db4e70d4ca5c05bfcb95970683445ddea9a",
+      "retained_source_locator": "protocolV1/manifests/inference_reproducibility_manifest.json",
+      "included_in_compact_release": false
+    },
+    {
+      "sha256": "61b7b3a8c744974f3b228adb18ff5796b9e1a9ec827260a4e80c72d13215d9de",
+      "retained_source_locator": "protocolV1/server_jobs/qwen3vl_full25_20261011/run_config.json",
+      "included_in_compact_release": false
+    },
+    {
+      "sha256": "69d3e908d81122528d7830f511a8a356c2176848908cdcda1ab2780cf7ca0d81",
+      "retained_source_locator": "protocolV1/server_jobs/qwen3vl_full25_20261011/MODEL_PROVENANCE.md",
+      "included_in_compact_release": false
+    }
+  ],
+  "scoring": {
+    "current": "Task = binary semantic_correct AND format_compliant; completion required",
+    "contract": "docs/SCORING.md; original short-answer contract remains separate from analysis metrics",
+    "historical_manifest_warning": "Three-model manifest records generation provenance; its old F1 fields do not define current binary scoring."
+  },
+  "tiers": {
+    "label_to_analysis": "Tested locally on frozen public masks, 12 legacy and 18 paired-metric tables.",
+    "raw_response_to_labels": "Scoring source and protocol are released; requires historical raw responses, references, fixed Judge identity and runtime; not re-executed by reproduce_all.py.",
+    "full_model_rerun": "Not newly executed or certified. Requires licensed source images, exact perturbations and native processors, model weights, GPU/runtime and binary regrading."
+  },
+  "weights_redistributed": false,
+  "image_rights": "Source dataset licenses apply; no new image redistribution permission is asserted.",
+  "legacy_commands": "Historical strength grids and F1 commands do not reproduce the current nonzero 1..4 binary protocol unmodified.",
+  "source_evidence_qualification": "Hashes and locators identify retained historical evidence; these full internal source artifacts are not included in the compact public release."
+}

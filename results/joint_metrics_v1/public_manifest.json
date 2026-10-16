@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "status": "completed",
+  "scope": "Frozen public-label CPU analysis; no inference, regrading or new exposure",
+  "data_role": "Existing public known benchmark; original image/root roles unchanged",
+  "models": [
+    "blip2",
+    "llava",
+    "qwen25",
+    "qwen3vl"
+  ],
+  "roots": 1500,
+  "original_images": 1065,
+  "conditions": 441,
+  "already_scored_entries": 2646000,
+  "model_calls": 0,
+  "judge_calls": 0,
+  "new_input_exposures": 0,
+  "bootstrap": 2000,
+  "seed": 17,
+  "protocol": {
+    "sha256": "f2eacb2dbbd8f5a145995c55da7875dfe13d9052e59d54a2a9d3dce2400a6996",
+    "bytes": 18242
+  },
+  "code": {
+    "reproduce_all.py": {
+      "sha256": "930c5f243c4f849886b336be9cac1a6e7c120160602accfde80578e763b60693",
+      "bytes": 5528
+    },
+    "joint_metrics.py": {
+      "sha256": "866ee9f8275930439e177a33936ab6c2fb5476f7e48bd108824a18443f6cf268",
+      "bytes": 24168
+    },
+    "reproduce_binary.py": {
+      "sha256": "6047deda861b8fc2b8da3172f01e3a3d4981cc09acb63c632e62a39fffa4230e",
+      "bytes": 20402
+    },
+    "plot_joint_metrics.py": {
+      "sha256": "36beffd68624d42215e2e1ac8c17295314b9c0972b3baebe2abd0e9f4f84d2b7",
+      "bytes": 5785
+    },
+    "validate_legacy.py": {
+      "sha256": "30896facca122e4a749acc1f5ca4957567a3aa31a21da762b938d7f869a6f0a6",
+      "bytes": 5684
+    }
+  },
+  "inputs": {
+    "binary_masks.npz": {
+      "sha256": "3d7617bdb468bc9baa7e4491f9733f2dfd18b697e41c7828dc480c87cf566c17",
+      "bytes": 169340
+    },
+    "roots.csv": {
+      "sha256": "79544771505c3bb2219599d1ad70706794779d81e658b38dbe868dcb11208ff6",
+      "bytes": 137259
+    }
+  },
+  "environment": {
+    "python": "3.12.12",
+    "implementation": "CPython",
+    "platform": "Windows-11-10.0.22631-SP0",
+    "cpu_only": true,
+    "dependencies": {
+      "numpy": "2.4.4",
+      "matplotlib": "3.10.9",
+      "contourpy": "1.3.3",
+      "cycler": "0.12.1",
+      "fonttools": "4.62.1",
+      "kiwisolver": "1.5.0",
+      "packaging": "25.0",
+      "pillow": "11.3.0",
+      "pyparsing": "3.3.2",
+      "python-dateutil": "2.9.0.post0",
+      "six": "1.17.0"
+    },
+    "core_requirements": "requirements-core.txt",
+    "plotting_requirements": "requirements.txt",
+    "qualification": "Exact installed package versions for tested CPU label-to-analysis; no model-inference environment implied.",
+    "thread_pins": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    }
+  },
+  "verification": {
+    "legacy_csvs": 12,
+    "paired_metric_csvs": 18,
+    "float_absolute_tolerance": 1e-12,
+    "shared_bootstrap_matrix_equal": true,
+    "default_data_from_external_clean_cwd": true,
+    "actual_analysis_seconds": 12.296000000000276
+  },
+  "figure_qa": "Initial plot heading overlap retained in local QA evidence; plotting-only layout fix regenerated final figure from the successful CSVs. Final PNG visually inspected; no numerical rerun.",
+  "files": {
+    "analysis_metadata.json": {
+      "sha256": "5c240f645a94b6e59ca7fe96463639fd6c80a68cb7f45601a79e12309bb622e4",
+      "bytes": 67116
+    },
+    "bootstrap_draws.npz": {
+      "sha256": "21766617af5e1eda13a31307ee36f9086a6a0f706ba537991649444db4a92565",
+      "bytes": 3865665
+    },
+    "bootstrap_values.csv": {
+      "sha256": "651977630f45b96a1ca997235c8ce8151c12bc0453b55459772041c0e2a3bb60",
+      "bytes": 3810934
+    },
+    "cells.csv": {
+      "sha256": "283adc174fc9c34cc67794c8d537eda7347d570e6ddedb2f13995de224fba41d",
+      "bytes": 1496941
+    },
+    "cohort_roots.csv": {
+      "sha256": "f4c5ab599e8be75d27bf7f1e1c9b11991315330c800bdc4111f65d19ed3a957f",
+      "bytes": 3714222
+    },
+    "H_curve.csv": {
+      "sha256": "0b786a9ebf747c775f4180e2bfbf199367cf61bc2e2f45f2b2e5d27206b46e5d",
+      "bytes": 1036246
+    },
+    "H_thresholds.csv": {
+      "sha256": "0aee1e1e3aeb57a4a141e3e36b56bda5445c10d585f011ff1953cdb9ec08dbf1",
+      "bytes": 4275
+    },
+    "intervals.csv": {
+      "sha256": "a42c19f8c1071da52433fb9643449853ea8d5315c5784d0927186543d87cca15",
+      "bytes": 3782
+    },
+    "matched_candidates.csv": {
+      "sha256": "8e73091dbe016ac7ef00d54c7c6f6112fa71001e6ca26494a7b1d302bb8d7695",
+      "bytes": 669123
+    },
+    "matched_selected.csv": {
+      "sha256": "4313162793084a2b255a6de93512931b4acc94449a261e606c0d0876c49aa19a",
+      "bytes": 2185
+    },
+    "paired_contrasts.csv": {
+      "sha256": "50d9c1858d17d2cebd4756c1778e0708b4a2372a7d972a3aaf489aa14a771812",
+      "bytes": 5739
+    },
+    "pair_cells.csv": {
+      "sha256": "0d7c5401e4424d9903846e81a6440e2a0708e6c2c99553a6f676e1ad924280e9",
+      "bytes": 395937
+    },
+    "pair_sources.csv": {
+      "sha256": "4ed93d41f88afa73a2247ebcdcea25f3d790017dc34d79893a5763d5e85234bd",
+      "bytes": 69698
+    },
+    "pair_suites.csv": {
+      "sha256": "8a3f57899c59e69add03dab4ecf57e72ae9ae7f874fae7d52e9b1bba576ec449",
+      "bytes": 25141
+    },
+    "source_cells.csv": {
+      "sha256": "db04d03d851b94c6754b1a7fdce572e1179c8deb09287f3fc99f962c100c2ed7",
+      "bytes": 2618382
+    },
+    "source_equal.csv": {
+      "sha256": "b4a6f24442d6a14b711d19960eddaa7ecbce4425cccebdd5c5b912504817d402",
+      "bytes": 2934
+    },
+    "source_summary.csv": {
+      "sha256": "650d8d2ebb3d8b6c1c82e7da58461626abbe7936133de8d3ee284ddb080c0f16",
+      "bytes": 9095
+    },
+    "summary.csv": {
+      "sha256": "6bc15081de5c9c7315845f9ca8e0a5858fe58f31b88a92cdb7ac73d5887f9353",
+      "bytes": 11128
+    },
+    "tail_sensitivity.csv": {
+      "sha256": "6cd3992c87d50436d9619edff02fe355ba13426c2cf38e350c9809eaf02d6865",
+      "bytes": 29392
+    },
+    "valid_draw_ids.csv": {
+      "sha256": "c2ce9f8c43535f33d71a85c40ef28d6d87f54c25ede7025c3ffab84147feba4f",
+      "bytes": 8192133
+    },
+    "figures/figure_provenance.json": {
+      "sha256": "d537130573227add0678a72aeee08eccb162fa8c6759fb8ddaaba21f214c4b9a",
+      "bytes": 1005
+    },
+    "figures/matched_pair_survival.pdf": {
+      "sha256": "339aee5b788a2c62f0d9a6145ad194151669adcff924ac9b6a2dd91a9ef75d78",
+      "bytes": 25517
+    },
+    "figures/matched_pair_survival.png": {
+      "sha256": "e213320312136d82b796634c57d51daef078c5c3c05b9bf739bbfde1d6587826",
+      "bytes": 203370
+    },
+    "figures/matched_pair_survival.svg": {
+      "sha256": "3618ae6ab7665d18caf9bdc645ff763bc219087feb7037701e3a622a41baa759",
+      "bytes": 16271
+    }
+  }
+}

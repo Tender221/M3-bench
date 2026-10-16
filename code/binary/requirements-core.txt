@@ -1,0 +1,2 @@
+# Python 3.12.12 was tested; label-to-analysis production uses NumPy only.
+numpy==2.4.4

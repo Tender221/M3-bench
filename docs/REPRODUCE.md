@@ -1,40 +1,64 @@
-# Reproduce the current binary analysis
+# Reproduce the binary analysis and joint reliability profile
 
-## CPU entry
+## One CPU entry
 
-PowerShell 7.2+ (with its .NET runtime) is sufficient. The release wrapper is platform-neutral and uses no GPU or network:
+From the repository root, using Python 3.12 and a fresh output directory:
+
+```bash
+python -m pip install -r code/binary/requirements.txt
+python code/binary/reproduce_all.py --output output/reproduced --plots
+```
+
+For analysis without plotting, install `code/binary/requirements-core.txt` and omit `--plots`. The numerical code uses NumPy and standard Python only. No model, Judge, PyTorch, GPU or network request is made by the analysis. Dependencies are pinned to versions actually used; installing packages is a separate preparation step.
+
+The entry reads `results/binary_v1/` by default, verifies the physical NPZ/root hashes and complete scoring invariants, and derives:
+
+- `binary_v1/`: all 12 original source CSVs from labels, without reading expected CSV values during derivation. Subsequent comparison verifies them against released source tables, with exact categories/counts and floating tolerance 1e-9.
+- `joint_metrics_v1/`: all 18 new profile CSVs, shared bootstrap draws, masks/support metadata, source/tail sensitivities, all 3,600 candidate comparisons and selected examples. Defaults are 2,000 image-cluster replicates and seed 17.
+- `figures/`, with `--plots`: new profile figures from generated CSVs. This does not redraw or overwrite the existing 15 publication figure sets.
+- Execution, source/input pins, environment, timing and failure receipts. Existing output is refused; no previous run is overwritten.
+
+Input lookup is based on code location rather than the caller's working directory. `--data` can specify another copy of the same pinned release. The frozen protocol is shipped beside the code and passed explicitly. Protocol/path errors are checked before consuming the unified output directory.
+
+The numerical environment is Python 3.12.12/NumPy 2.4.4; plotting uses matplotlib 3.10.9. Bootstrap uses PCG64/seed 17, a shared 2000×1065 draw matrix, and fixed qualification/support masks. Intervals are linear-quantile pointwise percentile summaries with valid draw IDs retained. Each original image carries all its questions, conditions and models; condition counts are not independent sample counts. Tail reselection can produce a percentile interval excluding its observed point; no retrospective interval repair is applied. See [definitions and interpretation](JOINT_METRICS.md).
+
+## What was verified
+
+The mask-to-table producer ran in a fresh directory: 12 CSVs/16,188 rows reproduced, maximum floating difference 2.22e-16. An independent implementation directly parsed the public masks and checked all 24 profile summaries, 9,600 cell rows, 3,600 candidate comparisons, 72,000 bootstrap values, 36 intervals and 54 paired contrasts: 799,092 scalar comparisons passed, maximum difference 1.11e-16. Synthetic tests distinguish equal-marginal conditional accuracy from identical-cell-map suite survival and cover empty support, exact anchors and fixed bootstrap masks.
+
+The unified entry has a separate fresh-output acceptance check and public tests. Receipts record actual code/input hashes and commands; timing and absolute installation paths are not scientific values required to be byte-identical. Replaying summaries does not independently validate Judge decisions.
+
+## Retained alternatives and older figures
+
+PowerShell 7.2+ can still reproduce core Task/Semantic counts through .NET without Python:
 
 ```powershell
-pwsh -NoProfile -File code/binary/analyze_binary_masks.ps1 -Output ./output/recheck
+pwsh -NoProfile -File code/binary/analyze_binary_masks.ps1 -Output ./output/core-counts
 pwsh -NoProfile -File code/binary/test_semantic_sensitivity.ps1
 ```
 
-The wrapper defaults to `results/binary_v1/binary_masks.npz` and `roots.csv`, verifies their hashes against the included manifest, and requires a fresh output directory. It rederives the paper's core qualification, event/affected-question, reduced-slice and reference-preservation counts for both Task and Semantic. It also retains semantic outcomes on the unchanged primary cohorts. `root_records.csv` permits inspection at the question/image-group level.
+This packaged entry was checked with PowerShell 7.6.5/.NET 10.0.11 on Windows: 48 source checks, 208 summary comparisons and 24 synthetic assertions passed. A new Linux execution of that wrapper is not claimed.
 
-The compact masks contain all original per-condition outcomes, not sampled rows or regenerated predictions. Exact condition/model/root identifiers are stored inside the NPZ. The C# core is byte-identical to the implementation checked against the completed original task results and independently reimplemented for the semantic sensitivity. Synthetic checks include a format-only clean exclusion, an off-diagonal semantic failure, a format-only joint failure, corresponding anchors without a clean prerequisite, and fixed-reference success loss. No new Judge validation is implied.
-
-The packaged entry was actually checked on Windows with PowerShell 7.6.5 and .NET 10.0.11: all 48 built-in source checks, 208 task/semantic summary-field comparisons and 24 synthetic assertions passed. The wrapper uses portable .NET APIs; a new Linux execution of this packaged entry is not claimed. The separate original Judge runtime was Linux, as recorded in the scoring contract.
-
-## Figure source
-
-The 12 original descriptive source CSVs are in `results/binary_v1/`. Figures supplied here are the current binary publication figures, not renamed lexical-score plots. Optional figure regeneration uses the archived, previously executed plotting script:
+The original 15 binary figure sets have a retained, separate plotting entry. Install pandas 3.0.2 as well as plotting requirements if regenerating them:
 
 ```bash
-python -m pip install numpy pandas matplotlib
-python code/binary/plot_binary_metrics.py --data results/binary_v1 --output output/binary-figures
+python -m pip install pandas==3.0.2
+python code/binary/plot_binary_metrics.py --data results/binary_v1 --output output/original-figures
 ```
 
-The output directory must not exist. Arial is preferred with DejaVu Sans fallback; different font installations can change layout/render bytes. All source fractions and denominators must remain unchanged. The public plotting script is the same source used for the released figures; the packaging step does not rerun Python or claim a new platform test.
+Each figure output directory must be fresh. Arial is preferred with DejaVu Sans fallback. Fonts can alter render bytes without changing source values.
 
-## What is and is not reproduced
+## Reproducibility tiers
 
-- The public CPU entry rederives the core counts from all compact condition labels. Source CSVs additionally expose exact pair/cell and fixed-grid budget analyses used in the figures.
-- Scoring protocol, model revision and safe-exact routing are in `docs/SCORING.md` and `code/binary/`. Existing-label reanalysis does not rerun grading or regenerate the 2,646,000 original answers.
-- Raw image perturbation assets and complete raw model response archives are outside this compact release. Full inference requires obtaining original datasets/models under their terms and respecting the exact frozen input contract. This release does not claim a new end-to-end clean-room rerun.
-- The 63,000-row adaptation development experiment is a separate known-benchmark scope. Its source summary and semantic sensitivity are published separately; its training data, checkpoints, raw predictions and private execution infrastructure are not included.
+| Tier | Included contract/material | Executed by the CPU entry? |
+|---|---|---|
+| Labels → tables, profiles, intervals and new figures | Complete condition labels, image grouping, source IDs, code, protocol, dependencies | Yes; fresh-output replay and independent numeric checks |
+| Raw answers → binary labels | Frozen safe-exact router, semantic/format prompts, parser and Judge identity in [SCORING](SCORING.md) | No; complete raw response archives and Judge weights are not bundled |
+| Images/questions → model responses | Public revisions and retained generation contract in `code/binary/inference_contract.json`; legacy adapters | No; original assets/dataset access and exact input reconstruction are separate requirements |
+| Training/adaptation regeneration | Published development summaries and interpretation | No; training data/checkpoints and private execution infrastructure are outside this release |
+
+Original models used native wrappers, greedy 32-token generation and seed 0. BLIP-2's revision is a public reproduction pin; its original local config hash was not retained. The three-model historical environment snapshot is supporting evidence, not a complete time-stamped pip export. Fourth-model provenance is separately identified. Metadata availability does not imply a new end-to-end clean-room model rerun.
 
 ## Legacy toolkit
 
-`code/run_matrix.py`, `code/batch_run_matrix.py`, model adapters, old evaluation helpers and dataset preprocessing remain at their original paths. The exact former English/Chinese instructions are archived in `docs/legacy/README_before_binary_20261016.md` and `README_zh_before_binary_20261016.md`.
-
-These instructions document an older configurable inference/EM/F1 workflow, including examples with severity levels beyond the current paper's four nonzero levels. They are retained for users of that toolkit. **Do not use an EM/F1 output, an old default severity grid, an old interval or an old learned-policy result as the current binary M³-Test result.** The current paper's condition order, input realizations, binary protocol, populations and model revisions are frozen separately.
+`code/run_matrix.py`, `code/batch_run_matrix.py`, adapters and preprocessing retain their historical paths. Exact former English/Chinese instructions are archived in `docs/legacy/`. They describe an older EM/F1 workflow, including severity defaults outside the current four-level grid. Those commands cannot be used unmodified as the current binary protocol. Historical scores, intervals and learned-policy claims do not replace released binary labels and fixed-population analysis.
